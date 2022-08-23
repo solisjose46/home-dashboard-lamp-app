@@ -11,35 +11,34 @@
       <!--Grocery List -->
       <div class="row">
         <div class="col">
-
-          <h1>Grocery List</h1>
-
           <div class="row">
             <div class="col-6">
               <div class="card">
-                <h5 class="card-title">Card title</h5>
-                <ul class="list-group">
-                  <li class="list-group-item">Item C <button>Bought</button><button>Remove</button></li>
+                <h5 class="card-title">Grocery List</h5>
+                <ul class="list-group" id="grocery-list">
+                  <!-- <li class="list-group-item">Item C <button>Bought</button><button>Remove</button></li> -->
                 </ul>
               </div>
+              <button id="grocery-bought" class="btn btn-warning" disabled>Bought</button>
+              <button id="grocery-remove" class="btn btn-secondary" disabled>Remove</button>
             </div>
             <div class="col-6">
               <div class="row">
-                <div class="col"><h3>Add to Grocery List</h3></div>
+                <div class="col"><h5>Add to Grocery List</h5></div>
               </div>
               <div class="row">
                 <div class="col">
-                  <input type="text">
+                  <input type="text" id="grocery-input" placeholder="Sugar, Milk, etc...">
               </div>
               <div class="row">
-                <div class="col"><button>Add</button><button>Clear</button></div></div>
+                <div class="col"><button id="grocery-add">Add</button><button id="grocery-clear">Clear</button></div></div>
               </div>          
             </div>
           </div>
           <div class="row">
-            <div class="col">
-              <button>Save</button>
-              <button>Reset</button>
+            <div class="col d-flex justify-content-center">
+              <button id="grocery-save" class="btn btn-success">Save</button>
+              <button id="grocery-reset" class="btn btn-danger">Reset</button>
             </div>
           </div>
         </div>
@@ -47,6 +46,6 @@
       <!--Grocery List -->
     </div>
   </body>
-  <script src="../index.js"></script>
-  <script src="../grocerylist.js"></script>
+  <script src="../js/index.js"></script>
+  <script src="../js/grocerylist.js"></script>
 </html>

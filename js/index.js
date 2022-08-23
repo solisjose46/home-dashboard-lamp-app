@@ -1,21 +1,29 @@
-const GroceryItemStatus = Object.freeze({
-    requested: 0,
-    selected: 1,
-    bought: 2,
-    removed: 3,
-    initial: 4
+// Constants for item status
+const ItemStatus = Object.freeze({
+    initial: 0,
+    requested: 1,
+    selected: 2,
+    bought: 3,
+    removed: 4,
 });
 
-class GroceryItem{
-    itemName = "";
-    status = GroceryItemStatus.initial;
-    itemDom = null;
-    isInitial = false;
+const ItemStatusColor = Object.freeze({
+    nonselect: "bg-white",
+    selected: "bg-info",
+    bought: "bg-warning",
+    removed: "bg-danger"
+});
 
-    constructor(itemName, status, initialStatus){
+class ListItem{
+    itemName = "";
+    itemStatus = ItemStatus.initial;
+    itemDom = null;
+    isInitial = true;
+
+    constructor(itemName, itemStatus, isInitial){
         this.itemName = itemName;
-        this.status = status;
-        this.isInitial = initialStatus;
+        this.itemStatus = itemStatus;
+        this.isInitial = isInitial;
         this.appendDomElement();
     }
 
@@ -36,29 +44,20 @@ class GroceryItem{
         // Add text/data to elements
         li.className = "list-group-item bg-white";
         li.innerText = this.itemName;
-
-        // Attach event
-        // move this to "changeItemStatus"
-        li.addEventListener("click", function(event){
-
-            if(event.target.className.includes("bg-white")){
-                event.target.classList.remove("bg-white");
-                event.target.classList.add("bg-info");
-            }
-            else{
-                event.target.classList.remove("bg-info");
-                event.target.classList.add("bg-white");
-            }
-        });
         
         // save reference and return it
         this.itemDom = li;
         return li;
     }
+
+    changeItemColor(color){
+        let classname = `list-group-item ${color}`;
+        this.itemDom.setAttribute("class", classname);
+    }
 }
 
 class List{
-    listTitle = "";
+    listName = "";
     list = [];
     listDom = "";
     selectedCount = 0;
@@ -67,31 +66,26 @@ class List{
         this.listTitle = listTitle;
         this.listDom = listDom;
 
-        itemList.forEach((itemTitle) => {
-            this.addToList(itemTitle, GroceryItemStatus.initial, true);
+        itemList.forEach((item) => {
+            this.addToList(item, ItemStatus.initial, true);
         });
     }
 
-    // Add item to internal array (list)
-    addToList(itemTitle, status, isInitial){
+    // Add item to internal array (list) and add as to dom
+    addToList(item, itemStatus, isInitial){
 
-        if(itemTitle === ""){
+        if(item === ""){
             return;
         }
 
-        let exists = false;
-        this.list.forEach((item) => {
-            if(item.itemName === itemTitle){
-                alert(`${itemTitle} is already added to the list`);
-                exists = true;
+        this.list.every((listItem) => {
+            if(listItem.itemName === item){
+                alert(`${item} is already added to the list`);
+                return;
             }
         });
 
-        if(exists){
-            return;
-        }
-
-        let newGroceryItem = new GroceryItem(itemTitle, status, isInitial);
+        let newGroceryItem = new GroceryItem(item, itemStatus, isInitial);
 
         // add to js object
         this.list.push(newGroceryItem);
@@ -100,66 +94,41 @@ class List{
         this.listDom.appendChild(newGroceryItem.itemDom);
     }
 
-    itemSelected(itemName){
-        this.list.forEach(item => {
-            if(item.itemName === itemName){
-                let selected = item.status === GroceryItemStatus.selected;
+    selectItem(item){
+        const itemListObject = this.list.find((itemList) => {itemList.itemName === item});
+        let selected = itemListObject.itemStatus !== ItemStatus.selected;
 
-                if(selected){
-                    if(item.isInitial){
-                        item.status = GroceryItemStatus.initial;
-                    }
-                    else{
-                        item.status = GroceryItemStatus.requested;
-                    }
-                    this.selectedCount--;
-                }
-                else{
-                    item.status = GroceryItemStatus.selected;
-                    this.selectedCount++;
-
-                }
-
-                if(selected && !item.isInitial){
-                    item.status = GroceryItemStatus.requested;
-                }
-
-                return;
+        if(selected){
+            itemListObject.itemStatus = ItemStatus.selected;
+            this.selectedCount++;
+            itemListObject.changeItemColor(ItemStatusColor.selected);
+        }
+        else{
+            if(itemListObject.isInitial){
+                itemListObject.itemStatus = ItemStatus.initial;
             }
-        });
+            else{
+                itemListObject.itemStatus = ItemStatus.requested;
+            }
+            itemListObject.changeItemColor(ItemStatusColor.nonselect);
+        }
     }
 
-    changeItemStatus(status){
-        const indices = [];
-
-        // find all selected
-        for(let i = 0; i < this.list.length; i++){
-            if(this.list[i].status ===GroceryItemStatus.selected){
-                indices.push(i);
+    removeItems(){
+        // soft remove intial items; these need to be tracked in order to make post request
+        this.list.forEach((item) => {
+            if(item.itemStatus)
+            if(item.status === GroceryItemStatus.bought || this.itemSelected === GroceryItemStatus.removed){
+                item.removeFromHtmlList();
             }
-        }
+        });
 
-        // soft remove initial selected
-        for(let i = 0; i < indices.length; i++){
-            if(indices[i].isInitial && ){
+        // hard remove items that have been requested but removed;
+        // cannot use bought action on item that was just requested
+        let indices = [];
+        let i = 0;
+        this.list.forEach((item) => {
 
-            }
-        }
-
-        // hard remove requested
-        // this.list.forEach(item => {
-        //     if(item.status === GroceryItemStatus.selected){
-        //         indices
-        //         item.status = status;
-        //         if(item.status === GroceryItemStatus.bought || GroceryItemStatus.removed){
-        //             this.selectedCount--;
-        //             item.removeFromHtmlList();
-
-        //             if(!item.isInitial){
-        //                 // remove from this.list
-        //             }
-        //         }
-        //     }
-        // });
+        });
     }
 }

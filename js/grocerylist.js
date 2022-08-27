@@ -39,7 +39,7 @@ let testData = ["Sugar", "Milk", "Orange Juice", "Eggs"];
             return;
         }
 
-        groceryList.addToList(groceryInput.value, GroceryItemStatus.requested, false);
+        groceryList.addToList(groceryInput.value, ItemStatus.requested, false);
         groceryInput.value = "";
     });
 
@@ -56,7 +56,7 @@ let testData = ["Sugar", "Milk", "Orange Juice", "Eggs"];
         let noChange = true;
 
         groceryList.list.forEach((item) => {
-            if(item.status !== GroceryItemStatus.initial){
+            if(item.status !== ItemStatus.initial){
                 noChange = false;
             }
         });
@@ -71,13 +71,13 @@ let testData = ["Sugar", "Milk", "Orange Juice", "Eggs"];
         let requested = "";
 
         groceryList.list.forEach((item) => {
-            if(item.status === GroceryItemStatus.bought){
+            if(item.status === ItemStatus.bought){
                 bought += `${item.itemName}\n`;
             }
-            if(item.status === GroceryItemStatus.removed){
+            if(item.status === ItemStatus.removed){
                 removed += `${item.itemName}\n`;
             }
-            if(item.status === GroceryItemStatus.requested){
+            if(item.status === ItemStatus.requested){
                 requested += `${item.itemName}\n`;
             }
         });
@@ -109,12 +109,12 @@ let testData = ["Sugar", "Milk", "Orange Juice", "Eggs"];
 
     boughtBtn.addEventListener("click", (event)=>{
         console.log("bought click");
-        groceryList.changeItemStatus(GroceryItemStatus.bought);
+        groceryList.changeItemStatus(ItemStatus.bought);
     });
 
     removeBtn.addEventListener("click", (event)=>{
         console.log("remove click");
-        groceryList.changeItemStatus(GroceryItemStatus.removed);
+        groceryList.changeItemStatus(ItemStatus.removed);
         disableActions();
     });
     

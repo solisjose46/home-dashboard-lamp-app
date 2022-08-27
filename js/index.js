@@ -38,18 +38,17 @@ class Item{
     itemStatus = ItemStatus.unselected;
     itemDom = null;
 
-    constructor(itemName, isInitial){
+    constructor(itemName){
         this.itemName = itemName;
-        this.isInitial = isInitial;
     }
 
     // remove this item from html
     removeItem(){
         if(this.itemDom === null){
-            console.log(`${this.itemName} dom is null`);
             return;
         }
         this.itemDom.remove();
+        this.itemDom = null;
     }
 
     // Adds this item to list html as a child node
@@ -60,35 +59,35 @@ class Item{
 
     // update status which changes this items color reflected on dom
     updateStatus(itemStatus){
+        console.log(`itemStatus ${itemStatus}`);
         this.itemStatus = itemStatus;
         let color = "";
 
         switch(itemStatus){
-            case itemStatus === ItemStatus.unselected:
+            case ItemStatus.unselected:
                 color = ItemStatusColor.unselected;
-            case itemStatus === ItemStatus.selected:
+                break;
+            case ItemStatus.selected:
                 color = ItemStatusColor.selected;
                 break;
-            case itemStatus === ItemStatus.removed:
-                color = ItemStatusColor.removed;
-                break;
-            case itemStatus ===ItemStatus.bought:
-                color = ItemStatusColor.bought;
-                break;
+            // case itemStatus === ItemStatus.removed:
+            //     color = ItemStatusColor.removed;
+            //     break;
+            // case itemStatus ===ItemStatus.bought:
+            //     color = ItemStatusColor.bought;
+            //     break;
         }
 
-        changeItemColor(this.itemDom, color);
+        updateItemColor(this.itemDom, color);
     }
 }
 
-function searchList(list, attribute, search){
-    list.every.forEach((obj) => {
-        if(obj[attribute] === search){
-            return true;
-        }
-    });
+function prepItemName(itemName){
+    let words = itemName.split(" ");
 
-    return false;
+    return words.map((word) => { 
+        return word[0].toUpperCase() + word.substring(1).toLowerCase(); 
+    }).join(" ");
 }
 
 class ItemList{
@@ -107,33 +106,66 @@ class ItemList{
         this.listDom = listDom;
 
         rawInitialList.forEach((itemName) => {
-            let newItem = new Item(itemName, true);
+            let newItem = new Item(prepItemName(itemName));
             newItem.addItem(this.listDom);
-            this.initialList.push(initialItem);
+            this.initialList.push(newItem);
         });
+    }
+
+    isListModified(){
+        console.log("CHECK MODIFIED");
+        let resultA = this.list.find((item) => { return item.itemStatus === ItemStatus.unselected });
+
+        let resultB = this.initialList.find((item) => {return item.itemStatus === ItemStatus.bought || item.itemStatus === ItemStatus.removed});
+        
+        if(resultB !== undefined || resultA !== undefined){
+            return true;
+        }
+
+        return false;
     }
 
     // Items to add after initial load (post these to add)
     addToList(itemName){
 
+        
         if(itemName === ""){
             return;
         }
 
+        // Enforce char count
+
+        // prep name for adding to list
+        itemName = prepItemName(itemName);
+
         // check if item to add is in our lists
-        let exists = searchList(this.initialList, "itemName", itemName) || searchList(this.list, "itemName", itemName);
-        if(exists){
-            alert(`${itemName} is already added to the list`);
-            return;
+        let findA = this.initialList.find((item) => { return item.itemName === itemName });
+        let findB = this.list.find((item) => { return item.itemName === itemName });
+
+        let exists = findA || findB;
+
+        if(exists !== undefined){
+
+            if(exists.itemStatus === ItemStatus.selected || exists.itemStatus === ItemStatus.unselected){
+                alert(`${itemName} is already on the grocery list!`);
+                return;
+            }
+
+            let foundMessage = `${itemName} was recently bought or removed. Did you want to add this item to your grocery list again?`
+            if(confirm(foundMessage)){
+                exists.itemStatus = ItemStatus.unselected;
+                exists.addItem(this.listDom);
+                return;
+            }
         }
 
-        let newItem = new Item(itemName, false);
+        let newItem = new Item(itemName);
 
         newItem.addItem(this.listDom);
         this.list.push(newItem);
     }
 
-    selectItem(itemName, status){
+    selectItem(itemName){
         let findA = this.initialList.find((item) => { return item.itemName === itemName });
         let findB = this.list.find((item) => { return item.itemName === itemName });
 
@@ -142,6 +174,8 @@ class ItemList{
         if(selectedItem === undefined){
             return;
         }
+
+        let status = selectedItem.itemStatus === ItemStatus.selected ? ItemStatus.unselected : ItemStatus.selected;
 
         if(status === ItemStatus.selected){
             this.selectedCount++;
@@ -155,17 +189,30 @@ class ItemList{
 
     // this status update should be bought or removed
     removeItems(status){
+        // this status should be removed or bought
+        if(status !== ItemStatus.removed && status !== ItemStatus.bought){
+            console.log("removeItems: status should be removed or bought");
+            return;
+        }
+
         // soft remove from intialList in order to make post request to remove
         this.initialList.forEach((item) => {
             if(item.itemStatus === ItemStatus.selected){
+                this.selectedCount--;
+                // this bought or remove status matters to be able to post 
                 item.itemStatus = status;
-                // left off here 
+                // remove from html
+                item.removeItem();
             }
         });
-        // hard remove any added to this session;
-        // no need to make post request to remove these because they were never in the db
+
+        // hard remove any added to this session
+        this.list.forEach((item) => {
+            if(item.itemStatus === ItemStatus.selected){
+                this.selectedCount--;
+                item.itemStatus = status;
+                item.removeItem();
+            }
+        });
     }
-
-
-
 }

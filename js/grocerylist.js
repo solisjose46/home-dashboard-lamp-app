@@ -1,5 +1,5 @@
 // Dummy data
-let testData = ["Sugar", "Milk", "Orange Juice", "Eggs"];
+let testData = ["Sugar", "Milk", "Orange Juice", "Eggs", "Flour", "Chocolate Chips"];
 
 (function () {
     // Elements to react to
@@ -13,24 +13,34 @@ let testData = ["Sugar", "Milk", "Orange Juice", "Eggs"];
 
 
     const listDom = document.getElementById("grocery-list");
-    // get request then create list object
-    const groceryList = new List("Grocery List", testData, listDom);
+    // Initail get request for the inital data via fetch and promise
+    // Use test data for now
+    const groceryList = new ItemList("Grocery List", testData, listDom);
 
     function disableActions(){
         if(groceryList.selectedCount > 0){
             boughtBtn.disabled = false;
             removeBtn.disabled = false;
+            
         }
         else{
             boughtBtn.disabled = true;
             removeBtn.disabled = true;
+            
+        }
+
+        if(groceryList.isListModified()){
+            saveBtn.disabled = false;
+        }
+        else{
+            saveBtn.disabled = true;
         }
     }
 
     // Attach events to elements
     listDom.addEventListener("click", function(event){
         console.log(`selected ${event.target.innerText}`);
-        groceryList.itemSelected(event.target.innerText);
+        groceryList.selectItem(event.target.innerText);
         disableActions();
     });
 
@@ -39,8 +49,9 @@ let testData = ["Sugar", "Milk", "Orange Juice", "Eggs"];
             return;
         }
 
-        groceryList.addToList(groceryInput.value, ItemStatus.requested, false);
+        groceryList.addToList(groceryInput.value);
         groceryInput.value = "";
+        disableActions();
     });
 
     clearBtn.addEventListener("click", ()=> {
@@ -53,50 +64,41 @@ let testData = ["Sugar", "Milk", "Orange Juice", "Eggs"];
             return;
         }
 
-        let noChange = true;
-
-        groceryList.list.forEach((item) => {
-            if(item.status !== ItemStatus.initial){
-                noChange = false;
-            }
-        });
-
-        if(noChange){
-            alert("No changes to save!");
-            return;
-        }
-
         let bought = ""
         let removed = "";
         let requested = "";
 
-        groceryList.list.forEach((item) => {
-            if(item.status === ItemStatus.bought){
+        groceryList.initialList.forEach((item) => {
+            if(item.itemStatus === ItemStatus.bought){
                 bought += `${item.itemName}\n`;
             }
-            if(item.status === ItemStatus.removed){
+            if(item.itemStatus === ItemStatus.removed){
                 removed += `${item.itemName}\n`;
             }
-            if(item.status === ItemStatus.requested){
+        });
+
+        groceryList.list.forEach((item) => {
+            if(item.itemStatus === ItemStatus.unselected){
                 requested += `${item.itemName}\n`;
             }
         });
 
         let confirmMessage = "Are you sure you want to save the following changes?\n\n";
         if(bought !== ""){
-            confirmMessage += `Bought:\n${bought}\n`;
+            confirmMessage += `Bought these items:\n${bought}\n`;
         }
 
         if(requested !== ""){
-            confirmMessage += `Requested:\n${requested}\n`;
+            confirmMessage += `Add to the grovery list:\n${requested}\n`;
         }
 
         if(removed !== ""){
-            confirmMessage += `Removed:\n${removed}`
+            confirmMessage += `Remove from grocery list:\n${removed}`
         }
 
         if(!confirm(confirmMessage)){
             console.log("CANCEL");
+            location.reload();
             return;
         }
 
@@ -109,12 +111,12 @@ let testData = ["Sugar", "Milk", "Orange Juice", "Eggs"];
 
     boughtBtn.addEventListener("click", (event)=>{
         console.log("bought click");
-        groceryList.changeItemStatus(ItemStatus.bought);
+        groceryList.removeItems(ItemStatus.bought);
     });
 
     removeBtn.addEventListener("click", (event)=>{
         console.log("remove click");
-        groceryList.changeItemStatus(ItemStatus.removed);
+        groceryList.removeItems(ItemStatus.removed);
         disableActions();
     });
     

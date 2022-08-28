@@ -7,11 +7,11 @@ const ItemStatus = Object.freeze({
 });
 
 const ItemStatusColor = Object.freeze({
-    unselected: "bg-white",
-    selected: "bg-info",
+    unselected: "bg-white text-dark",
+    selected: "bg-info text-white",
     // not used but maybe in the future
-    bought: "bg-warning",
-    removed: "bg-secondary"
+    bought: "bg-warning text-dark",
+    removed: "bg-secondary text-white"
 });
 
 // Functions for modifying html dom li elements
@@ -21,7 +21,7 @@ function createListItem(itemName){
         li.style.cursor = "pointer";
 
         // Add text/data to elements
-        li.className = "list-group-item bg-white";
+        li.className = "list-group-item bg-white text-dark";
         li.innerText = itemName;
         
         // return html element
@@ -144,7 +144,7 @@ class ItemList{
     getItemsByStatus(status){
         let items = [];
 
-        if(status === ItemStatus.bought || ItemStatus.removed){
+        if(status === ItemStatus.bought || status === ItemStatus.removed){
             this.initialList.forEach((item) => {
                 if(item.itemStatus === status){
                     items.push(item.itemName);
@@ -194,6 +194,7 @@ class ItemList{
 
             let foundMessage = `${itemName} was recently bought or removed. Did you want to add this item to your grocery list again?`
             if(confirm(foundMessage)){
+                exists.addItem(this.listDom);
                 exists.updateStatus(ItemStatus.unselected);
                 return;
             }
@@ -229,6 +230,7 @@ class ItemList{
         this.list.forEach((item) => {
             if(item.itemStatus === ItemStatus.selected){
                 item.updateStatus(status);
+                item.removeItem();
             }
         });
     }

@@ -77,10 +77,10 @@ let testData = ["Sugar", "Milk", "Orange Juice", "Eggs", "Flour", "Chocolate Chi
 
 
         // prepare message
-        let confirmMessage = "Are you sure you want to save the following changes?\n\n";
+        let confirmMessage = "Are you sure you want to save the following changes?\n";
 
         if(requested.length > 0){
-            confirmMessage += "Add to the grovery list:\n";
+            confirmMessage += "\nAdd to your grocery list:\n";
         }
 
         requested.forEach((itemName) => {
@@ -88,7 +88,7 @@ let testData = ["Sugar", "Milk", "Orange Juice", "Eggs", "Flour", "Chocolate Chi
         });
 
         if(bought.length > 0){
-            confirmMessage += "Bought these items:\n"
+            confirmMessage += "\nBought these items:\n"
         }
 
         bought.forEach((itemName) => {
@@ -96,7 +96,7 @@ let testData = ["Sugar", "Milk", "Orange Juice", "Eggs", "Flour", "Chocolate Chi
         });
 
         if(removed.length > 0){
-            confirmMessage += "These items will be removed from your grocery list:\n"
+            confirmMessage += "\nThese items will be removed from your grocery list:\n"
         }
 
         removed.forEach((itemName) => {

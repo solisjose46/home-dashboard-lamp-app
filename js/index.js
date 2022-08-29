@@ -1,3 +1,8 @@
+// api endpoints
+const API = Object.freeze({
+    groceryList: "http://192.168.122.46:5000/grocerylist"
+});
+
 // Constants for item status
 const ItemStatus = Object.freeze({
     unselected: 0,
@@ -59,7 +64,6 @@ class Item{
 
     // update status which changes this items color reflected on dom
     updateStatus(itemStatus){
-        console.log(itemStatus);
         this.itemStatus = itemStatus;
         let color = "";
 
@@ -99,17 +103,11 @@ class ItemList{
     list = [];
     listDom = "";
 
-    constructor(listName, rawInitialList, listDom){
+    constructor(listName, listDom){
         this.listName = listName;
         // this dom element has click event attached to it
         // fn selectItem is attached
         this.listDom = listDom;
-
-        rawInitialList.forEach((itemName) => {
-            let newItem = new Item(prepItemName(itemName));
-            newItem.addItem(this.listDom);
-            this.initialList.push(newItem);
-        });
     }
 
     isListModified(){
@@ -168,6 +166,14 @@ class ItemList{
 
         let exists = findA || findB;
         return exists; // Item object or undefined
+    }
+
+    addInitialItems(items){
+        items.forEach((item) => {
+            let newItem = new Item(prepItemName(item.itemName));
+            newItem.addItem(this.listDom);
+            this.initialList.push(newItem);
+        });
     }
 
     // Items to add after initial load 

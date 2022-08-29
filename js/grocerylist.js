@@ -1,6 +1,3 @@
-// Dummy data
-let testData = ["Sugar", "Milk", "Orange Juice", "Eggs", "Flour", "Chocolate Chips"];
-
 (function () {
     // Elements to react to
     const groceryInput = document.getElementById("grocery-input");
@@ -13,29 +10,31 @@ let testData = ["Sugar", "Milk", "Orange Juice", "Eggs", "Flour", "Chocolate Chi
 
 
     const listDom = document.getElementById("grocery-list");
-    // Initail get request for the inital data via fetch and promise
-    // Use test data for now
-    const groceryList = new ItemList("Grocery List", testData, listDom);
+
+    const groceryList = new ItemList("Grocery List", listDom);
+
+    fetch(API.groceryList)
+    .then((response) => {
+        return response.json();
+    }).then((items) => {
+        groceryList.addInitialItems(items);
+    }).catch((error) => { console.log(error) });
 
     function disableActions(){
 
         if(groceryList.areItemsSelected()){
-            console.log("enabled bought remove");
             boughtBtn.disabled = false;
             removeBtn.disabled = false;
         }
         else{
-            console.log("disbled bought remove");
             boughtBtn.disabled = true;
             removeBtn.disabled = true;  
         }
 
         if(groceryList.isListModified()){
-            console.log("save enabled");
             saveBtn.disabled = false;
         }
         else{
-            console.log("save disabled");
             saveBtn.disabled = true;
         }
     }

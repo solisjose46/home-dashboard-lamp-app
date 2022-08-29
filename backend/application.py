@@ -1,13 +1,17 @@
 from flask import Flask
 from test_db_creds import DB_CREDENTIALS
 import mysql.connector
+from flask_cors import CORS
 
 app = Flask(__name__)
+CORS(app)
 
 connection = mysql.connector.connect(host=f"{DB_CREDENTIALS.host}", user=f"{DB_CREDENTIALS.username}", passwd=f"{DB_CREDENTIALS.password}", database=f"{DB_CREDENTIALS.database}")
 
 db_cursor = connection.cursor()
 
+# input: list of tuples
+# output: list of dictionaries 
 def get_grocery_list_prep(result):
     items = []
     for i in result:
@@ -31,20 +35,11 @@ def get_grocery_list():
 # def set_add_items(added_items):
 #     pass
 
-# groceryList = {
-#     "type":"grocery",
-#     "items":[
-#         "Cake",
-#         "Coffee",
-#         "Bleach"
-#     ]
-# }
-
 @app.route('/')
 def index():
     return 'Hello world!\n'
 
-@app.route('/grocerylist')
+@app.route('/grocerylist', methods=['GET'])
 def get_grocerylist():
     items = get_grocery_list() 
     return items

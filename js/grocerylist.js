@@ -1,6 +1,3 @@
-// Dummy data
-let testData = ["Sugar", "Milk", "Orange Juice", "Eggs", "Flour", "Chocolate Chips"];
-
 (function () {
     // Elements to react to
     const groceryInput = document.getElementById("grocery-input");
@@ -13,20 +10,25 @@ let testData = ["Sugar", "Milk", "Orange Juice", "Eggs", "Flour", "Chocolate Chi
 
 
     const listDom = document.getElementById("grocery-list");
-    // Initail get request for the inital data via fetch and promise
-    // Use test data for now
-    const groceryList = new ItemList("Grocery List", testData, listDom);
+
+    const groceryList = new ItemList("Grocery List", listDom);
+
+    fetch(API.groceryList)
+    .then((response) => {
+        return response.json();
+    }).then((items) => {
+        groceryList.addInitialItems(items);
+    }).catch((error) => { console.log(error) });
 
     function disableActions(){
-        if(groceryList.selectedCount > 0){
+
+        if(groceryList.areItemsSelected()){
             boughtBtn.disabled = false;
             removeBtn.disabled = false;
-            
         }
         else{
             boughtBtn.disabled = true;
-            removeBtn.disabled = true;
-            
+            removeBtn.disabled = true;  
         }
 
         if(groceryList.isListModified()){
@@ -39,7 +41,6 @@ let testData = ["Sugar", "Milk", "Orange Juice", "Eggs", "Flour", "Chocolate Chi
 
     // Attach events to elements
     listDom.addEventListener("click", function(event){
-        console.log(`selected ${event.target.innerText}`);
         groceryList.selectItem(event.target.innerText);
         disableActions();
     });
@@ -59,45 +60,49 @@ let testData = ["Sugar", "Milk", "Orange Juice", "Eggs", "Flour", "Chocolate Chi
     });
 
     saveBtn.addEventListener("click", ()=> {
-        if(groceryList.selectedCount > 0){
+        if(groceryList.areItemsSelected()){
             alert("Mark selected items as 'Bought' or 'Removed' before saving!");
             return;
         }
 
-        let bought = ""
-        let removed = "";
-        let requested = "";
+        if(!groceryList.isListModified()){
+            alert("No changes to save!");
+            return;
+        }
 
-        groceryList.initialList.forEach((item) => {
-            if(item.itemStatus === ItemStatus.bought){
-                bought += `${item.itemName}\n`;
-            }
-            if(item.itemStatus === ItemStatus.removed){
-                removed += `${item.itemName}\n`;
-            }
+        let requested = groceryList.getItemsByStatus(ItemStatus.unselected);
+        let bought = groceryList.getItemsByStatus(ItemStatus.bought);
+        let removed = groceryList.getItemsByStatus(ItemStatus.removed);
+
+
+        // prepare message
+        let confirmMessage = "Are you sure you want to save the following changes?\n";
+
+        if(requested.length > 0){
+            confirmMessage += "\nAdd to your grocery list:\n";
+        }
+
+        requested.forEach((itemName) => {
+            confirmMessage += `${itemName}\n`;
         });
 
-        groceryList.list.forEach((item) => {
-            if(item.itemStatus === ItemStatus.unselected){
-                requested += `${item.itemName}\n`;
-            }
+        if(bought.length > 0){
+            confirmMessage += "\nBought these items:\n"
+        }
+
+        bought.forEach((itemName) => {
+            confirmMessage += `${itemName}\n`;
         });
 
-        let confirmMessage = "Are you sure you want to save the following changes?\n\n";
-        if(bought !== ""){
-            confirmMessage += `Bought these items:\n${bought}\n`;
+        if(removed.length > 0){
+            confirmMessage += "\nThese items will be removed from your grocery list:\n"
         }
 
-        if(requested !== ""){
-            confirmMessage += `Add to the grovery list:\n${requested}\n`;
-        }
-
-        if(removed !== ""){
-            confirmMessage += `Remove from grocery list:\n${removed}`
-        }
+        removed.forEach((itemName) => {
+            confirmMessage += `${itemName}\n`;
+        });
 
         if(!confirm(confirmMessage)){
-            console.log("CANCEL");
             location.reload();
             return;
         }
@@ -110,12 +115,11 @@ let testData = ["Sugar", "Milk", "Orange Juice", "Eggs", "Flour", "Chocolate Chi
     });
 
     boughtBtn.addEventListener("click", (event)=>{
-        console.log("bought click");
         groceryList.removeItems(ItemStatus.bought);
+        disableActions();
     });
 
     removeBtn.addEventListener("click", (event)=>{
-        console.log("remove click");
         groceryList.removeItems(ItemStatus.removed);
         disableActions();
     });

@@ -1,6 +1,6 @@
 // api endpoints
 const API = Object.freeze({
-    groceryList: "http://192.168.122.46:5000/grocerylist"
+    groceryList: "http://192.168.122.54:5000/grocerylist"
 });
 
 // Constants for item status

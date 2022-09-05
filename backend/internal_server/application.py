@@ -19,6 +19,8 @@ def get_grocery_list_prep(result):
             items.append({"itemName" : j})
     return items
 
+authorized = False
+
 def get_grocery_list():
     statement = "select item_name from grocery_list"
     db_cursor.execute(statement)
@@ -35,7 +37,7 @@ def get_grocery_list():
 # def set_add_items(added_items):
 #     pass
 
-@app.route('/')
+@app.route('/', methods=['GET'])
 def index():
     return 'Hello world!\n'
 
@@ -43,3 +45,6 @@ def index():
 def get_grocerylist():
     items = get_grocery_list() 
     return items
+
+if __name__ == '__main__':
+    app.run(host='0.0.0.0', port=5000)

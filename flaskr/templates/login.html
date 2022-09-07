@@ -14,25 +14,21 @@
     <div class="container-fluid">
         <div class="row">
             <div class="col">
-                <h1>Username</h1>
-                <input type="text" id="username-input">
+                <form action="/login" method="post">
+                    <label for="username">
+                        <h1>Username</h1>
+                    </label>
+                    <input type="text" id="username" name="username">
+                    <label for="password">
+                        <h1>Password</h1>
+                    </label>
+                    <input type="password" id="password" name="password">
+                    <input type="submit" value="Submit">
+                </form>
             </div>
         </div>
-        <div class="row">
-            <div class="col">
-                <h1>Password</h1>
-                <input type="password" id="password-input">
-            </div>
-        </div>
-        <div class="row">
-            <div class="col py-2">
-                <button id="login-btn" class="btn btn-success mx-1">Log In</button><button id="clear-btn"
-                    class="btn btn-danger mx-1">Clear</button>
-            </div>
-        </div>
+
     </div>
 </body>
-
-<script src="login.js"></script>
 
 </html>

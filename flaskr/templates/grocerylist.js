@@ -13,7 +13,7 @@
 
     const groceryList = new ItemList("Grocery List", listDom);
 
-    fetch(API.groceryList)
+    fetch(API.groceryList, { credentials: "include" })
     .then((response) => {
         return response.json();
     }).then((items) => {
